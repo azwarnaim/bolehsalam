@@ -47,14 +47,8 @@
           <path d="M19 12H5M12 19l-7-7 7-7"/>
         </svg>
       </button>
-      <div class="progress-bar" id="progressBar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
       <button class="lang-toggle" id="langToggle" onclick="toggleLanguage()" aria-label="Toggle language">EN</button>
     </div>
-
-    <!-- Confetti container -->
-    <div class="confetti-container" id="confettiContainer" aria-hidden="true"></div>
 
     <!-- Step 0: Welcome -->
     <section class="step active" id="step-welcome">
@@ -78,14 +72,30 @@
 
         <p class="raya-greeting" data-i18n="rayaGreeting">Selamat Hari Raya Aidilfitri</p>
         <h1 class="title">Boleh Salam<span class="title-q">?</span></h1>
-        <p class="subtitle" data-i18n="subtitle">Semak sama ada anda boleh bersalam dengan mudah dan pantas</p>
+        <p class="subtitle" data-i18n="pickGender">Saya adalah...</p>
 
-        <button class="btn-primary btn-glow" onclick="goToStep('gender')">
-          <span data-i18n="start">Mula Semak</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </button>
+        <div class="options-grid">
+          <button class="option-card" onclick="selectGender('m')">
+            <div class="option-icon-wrap male-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M5 21v-1a7 7 0 0114 0v1"/>
+              </svg>
+            </div>
+            <span class="option-label" data-i18n="male">Lelaki</span>
+            <span class="option-desc" data-i18n="maleDesc">Akhwan</span>
+          </button>
+          <button class="option-card" onclick="selectGender('f')">
+            <div class="option-icon-wrap female-icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M5 21v-1a7 7 0 0114 0v1"/>
+              </svg>
+            </div>
+            <span class="option-label" data-i18n="female">Perempuan</span>
+            <span class="option-desc" data-i18n="femaleDesc">Akhwat</span>
+          </button>
+        </div>
 
         <!-- Quick Check Section -->
         <div class="quick-check" id="quickCheck">
@@ -109,119 +119,56 @@
       </div>
     </section>
 
-    <!-- Step 1: Your Gender -->
-    <section class="step" id="step-gender">
+    <!-- Family Tree -->
+    <section class="step" id="step-tree">
       <div class="step-content">
-        <p class="step-label" data-i18n="stepLabel1">Langkah 1</p>
-        <h2 class="step-title" data-i18n="yourGender">Saya adalah...</h2>
-        <div class="options-grid">
-          <button class="option-card" onclick="selectGender('m')">
-            <div class="option-icon-wrap male-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M5 21v-1a7 7 0 0114 0v1"/>
-              </svg>
-            </div>
-            <span class="option-label" data-i18n="male">Lelaki</span>
-            <span class="option-desc" data-i18n="maleDesc">Akhwan</span>
-          </button>
-          <button class="option-card" onclick="selectGender('f')">
-            <div class="option-icon-wrap female-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M5 21v-1a7 7 0 0114 0v1"/>
-              </svg>
-            </div>
-            <span class="option-label" data-i18n="female">Perempuan</span>
-            <span class="option-desc" data-i18n="femaleDesc">Akhwat</span>
-          </button>
-        </div>
-      </div>
-    </section>
+        <h2 class="step-title" data-i18n="treeTitle">Pokok Keluarga Mahram</h2>
+        <p class="tree-subtitle" data-i18n="treeSubtitle">Ketuk pada nama untuk maklumat lanjut</p>
 
-    <!-- Step 2: Their Gender -->
-    <section class="step" id="step-their-gender">
-      <div class="step-content">
-        <p class="step-label" data-i18n="stepLabel2">Langkah 2</p>
-        <h2 class="step-title" data-i18n="theirGender">Saya ingin bersalam dengan...</h2>
-        <div class="options-grid">
-          <button class="option-card" onclick="selectTheirGender('m')">
-            <div class="option-icon-wrap male-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M5 21v-1a7 7 0 0114 0v1"/>
-              </svg>
-            </div>
-            <span class="option-label" data-i18n="male">Lelaki</span>
-          </button>
-          <button class="option-card" onclick="selectTheirGender('f')">
-            <div class="option-icon-wrap female-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M5 21v-1a7 7 0 0114 0v1"/>
-              </svg>
-            </div>
-            <span class="option-label" data-i18n="female">Perempuan</span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Step 3: Relationship -->
-    <section class="step" id="step-relationship">
-      <div class="step-content">
-        <p class="step-label" data-i18n="stepLabel3">Langkah 3</p>
-        <h2 class="step-title" data-i18n="relationship">Orang tersebut adalah...</h2>
-        <div class="search-wrap">
-          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
-          </svg>
-          <input type="text" class="search-input" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Cari hubungan..." oninput="filterRelationships()">
-        </div>
-        <div class="relationship-container" id="relationshipGrid">
-          <!-- Dynamically populated -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Step 4: Result -->
-    <section class="step" id="step-result">
-      <div class="step-content result-content">
-        <div class="result-card" id="resultCard">
-          <div class="result-icon" id="resultIcon"></div>
-          <h2 class="result-title" id="resultTitle"></h2>
-          <p class="result-reason" id="resultReason"></p>
-
-          <!-- Educational note -->
-          <div class="edu-note" id="eduNote">
-            <p class="edu-label" data-i18n="didYouKnow">Tahukah Anda?</p>
-            <p class="edu-text" id="eduText"></p>
+        <div class="tree-sticky">
+          <div class="tree-gender-toggle">
+            <button class="tree-gender-btn active" data-gender="m" onclick="setTreeGender('m')">
+              <span data-i18n="male">Lelaki</span>
+            </button>
+            <button class="tree-gender-btn" data-gender="f" onclick="setTreeGender('f')">
+              <span data-i18n="female">Perempuan</span>
+            </button>
           </div>
 
-          <div class="result-ref">
-            <p class="result-reference" id="resultReference"></p>
-            <p class="result-disclaimer" id="resultDisclaimer"></p>
+          <div class="tree-legend">
+            <span class="tree-legend-item boleh">
+              <span class="tree-legend-dot boleh"></span>
+              <span data-i18n="treeBoleh">Boleh Salam</span>
+            </span>
+            <span class="tree-legend-item tak-boleh">
+              <span class="tree-legend-dot tak-boleh"></span>
+              <span data-i18n="treeTakBoleh">Tak Boleh Salam</span>
+            </span>
+            <button class="tree-samegender-toggle" id="sameGenderToggle" onclick="toggleSameGender()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span data-i18n="treeShowSame">Tunjuk sama jantina</span>
+            </button>
           </div>
         </div>
-        <div class="result-actions">
-          <button class="btn-primary" onclick="resetApp()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 4v6h6M23 20v-6h-6"/>
-              <path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/>
-            </svg>
-            <span data-i18n="reset">Semak Semula</span>
-          </button>
-          <button class="btn-secondary" onclick="shareResult()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            <span data-i18n="share">Kongsi</span>
-          </button>
+
+        <div class="tree-container" id="treeContainer"></div>
+
+        <!-- Detail overlay -->
+        <div class="tree-detail-overlay" id="treeDetailOverlay" onclick="hideTreeDetail()">
+          <div class="tree-detail-sheet" onclick="event.stopPropagation()">
+            <div class="tree-detail-badge boleh" id="treeDetailBadge">Boleh Salam</div>
+            <h3 class="tree-detail-name" id="treeDetailName"></h3>
+            <p class="tree-detail-name-sec" id="treeDetailNameSec"></p>
+            <p class="tree-detail-status" id="treeDetailStatus"></p>
+            <p class="tree-detail-note" id="treeDetailNote"></p>
+            <button class="btn-secondary tree-detail-close" onclick="hideTreeDetail()">
+              <span data-i18n="treeClose">Tutup</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
+
 
   </div>
 

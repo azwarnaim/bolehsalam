@@ -123,7 +123,7 @@ input:focus-visible {
   position: relative;
   z-index: 1;
   padding: 0 20px;
-  overflow: hidden;
+  overflow: clip;
 }
 
 /* ========================================
@@ -990,6 +990,412 @@ input:focus-visible {
     background: rgba(255,255,255,0.9);
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
+}
+
+/* ========================================
+   Family Tree
+   ======================================== */
+.tree-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+/* Sticky header: gender toggle + legend */
+.tree-sticky {
+  position: sticky;
+  top: 56px;
+  z-index: 10;
+  background: var(--bg);
+  padding: 8px 0 10px;
+  margin: 0 -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.tree-gender-toggle {
+  display: flex;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.tree-gender-btn {
+  flex: 1;
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.tree-gender-btn.active {
+  background: linear-gradient(135deg, var(--green-800), var(--green-700));
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.tree-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tree-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.tree-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+}
+
+.tree-legend-dot.boleh {
+  background: var(--green-500);
+}
+
+.tree-legend-dot.tak-boleh {
+  background: var(--red-500);
+}
+
+/* Same-gender toggle */
+.tree-samegender-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-light);
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+  margin-left: auto;
+}
+
+.tree-samegender-toggle.active {
+  background: var(--green-50);
+  border-color: var(--green-500);
+  color: var(--green-800);
+}
+
+.tree-samegender-toggle svg {
+  flex-shrink: 0;
+}
+
+/* Tree container */
+.tree-container {
+  position: relative;
+  padding: 4px 0 12px;
+}
+
+/* Zone containers */
+.tree-zone {
+  margin-bottom: 4px;
+}
+
+.tree-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+
+.tree-zone-header::before,
+.tree-zone-header::after {
+  content: '';
+  flex: 1;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--gold-300), transparent);
+}
+
+.tree-zone-header span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gold-600);
+  white-space: nowrap;
+}
+
+/* Card-based group sections */
+.tree-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tree-card-header {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, rgba(200,164,92,0.06), rgba(200,164,92,0.02));
+}
+
+.tree-card-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--green-900);
+  margin: 0;
+}
+
+.tree-card-body {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Collapsed card (all same-gender, hidden) */
+.tree-card--collapsed {
+  opacity: 0.45;
+}
+
+.tree-card--collapsed .tree-card-header {
+  border-bottom: none;
+  padding-bottom: 10px;
+}
+
+.tree-card-samegender-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-light);
+  background: rgba(0,0,0,0.05);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+/* Node buttons — horizontal rows with status dot */
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+  border: 1.5px solid transparent;
+  text-align: left;
+  background: transparent;
+  width: 100%;
+}
+
+.tree-node:active {
+  transform: scale(0.98);
+  background: rgba(0,0,0,0.02);
+}
+
+/* Status dot */
+.tree-node-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.tree-node-dot.mahram {
+  background: var(--green-500);
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+}
+
+.tree-node-dot.non-mahram {
+  background: var(--red-500);
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.15);
+}
+
+.tree-node-dot.spouse {
+  background: var(--gold-500);
+  box-shadow: 0 0 0 3px rgba(200,164,92,0.15);
+}
+
+.tree-node-dot.same-gender {
+  background: var(--border);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+}
+
+.tree-node-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.tree-node-name {
+  color: var(--text);
+  line-height: 1.3;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.tree-node-sub {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.tree-node-arrow {
+  color: var(--text-light);
+  flex-shrink: 0;
+  opacity: 0.4;
+}
+
+/* Non-mahram emphasis */
+.tree-node.non-mahram {
+  background: var(--red-50);
+  border-color: rgba(239,68,68,0.15);
+}
+
+.tree-node.non-mahram .tree-node-name {
+  color: var(--red-600);
+}
+
+.tree-node.non-mahram .tree-node-arrow {
+  color: var(--red-500);
+  opacity: 0.5;
+}
+
+/* ANDA centerpiece */
+.tree-you {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 4px 0;
+  position: relative;
+}
+
+.tree-you-connector {
+  width: 2px;
+  height: 14px;
+  background: linear-gradient(to bottom, var(--green-500), var(--gold-500));
+  opacity: 0.35;
+}
+
+.tree-you-label {
+  display: inline-block;
+  padding: 10px 36px;
+  background: linear-gradient(135deg, var(--green-800), var(--green-700));
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 16px rgba(22,101,52,0.3);
+}
+
+/* Detail overlay */
+.tree-detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.tree-detail-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tree-detail-sheet {
+  background: var(--card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 28px 24px 32px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  transform: translateY(100%);
+  transition: transform 0.3s var(--ease);
+}
+
+.tree-detail-overlay.visible .tree-detail-sheet {
+  transform: translateY(0);
+}
+
+.tree-detail-badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.tree-detail-badge.boleh {
+  background: var(--green-100);
+  color: var(--green-800);
+}
+
+.tree-detail-badge.tak-boleh {
+  background: var(--red-100);
+  color: var(--red-600);
+}
+
+.tree-detail-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.tree-detail-name-sec {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.tree-detail-status {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.tree-detail-note {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.tree-detail-note.hidden {
+  display: none;
+}
+
+.tree-detail-close {
+  width: 100%;
+  justify-content: center;
 }
 
 @media (max-width: 380px) {

@@ -82,6 +82,9 @@
       kadTpl1: 'Selamat Hari Raya Aidilfitri, maaf zahir & batin. Semoga Syawal ini penuh keberkatan.',
       kadTpl2: 'Salam Aidilfitri! Maaf kalau ada salah silap ye. Jemput datang beraya!',
       kadTpl3: 'Selamat Hari Raya! Ampun maaf segala salah silap. Jangan lupa jemput makan!',
+      kadSaveImg: 'Simpan Gambar',
+      kadShareThis: 'Kongsi Kad',
+      kadSaved: 'Gambar disimpan!',
       or: 'atau',
     },
     en: {
@@ -152,6 +155,9 @@
       kadTpl1: 'Wishing you a blessed Eid al-Fitr. May this Syawal bring happiness and blessings.',
       kadTpl2: 'Happy Hari Raya! Sorry for any wrongdoings. Come visit us!',
       kadTpl3: 'Happy Raya! Forgive me for everything. Come over for a meal!',
+      kadSaveImg: 'Save Image',
+      kadShareThis: 'Share Card',
+      kadSaved: 'Image saved!',
       or: 'or',
     },
   };
@@ -642,6 +648,18 @@
     if (k) {
       const data = decodeKad(k);
       if (data && data.f && data.t) {
+        // Update OG meta tags for link previews
+        const title = `${data.t}, ada Kad Raya untuk anda!`;
+        const desc = `${data.f} menghantar kad Raya digital khas untuk ${data.t}. Ketuk untuk buka!`;
+        const url = window.location.href;
+        const setMeta = (id, val, attr) => { const el = document.getElementById(id); if (el) el.setAttribute(attr || 'content', val); };
+        setMeta('ogTitle', title);
+        setMeta('ogDesc', desc);
+        setMeta('ogUrl', url);
+        setMeta('twTitle', title);
+        setMeta('twDesc', desc);
+        document.title = title;
+
         showKadView(data);
         return true;
       }
@@ -716,6 +734,229 @@
         ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
+        showToast(t('copied'));
+      }
+    }
+  }
+
+  // ========================================
+  // Save Card as Image
+  // ========================================
+  function saveKadImage() {
+    const view = document.getElementById('kadView');
+    const isCode = view.classList.contains('code-mode');
+
+    // Create a separate canvas for the screenshot (not the particle canvas)
+    const W = 1080, H = 1920; // Instagram Story size
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+
+    // Background
+    if (isCode) {
+      ctx.fillStyle = '#1e1e2e';
+      ctx.fillRect(0, 0, W, H);
+      // Scanlines
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+      for (let y = 0; y < H; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    } else {
+      ctx.fillStyle = '#fefdf8';
+      ctx.fillRect(0, 0, W, H);
+      // Diamond pattern
+      ctx.strokeStyle = 'rgba(200,164,92,0.06)';
+      ctx.lineWidth = 1;
+      for (let i = -H; i < W + H; i += 60) {
+        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(i + H, 0); ctx.lineTo(i, H); ctx.stroke();
+      }
+    }
+
+    // Get card data from DOM
+    const toName = document.getElementById('kadViewTo').textContent;
+    const msg = document.getElementById('kadViewMsg')?.textContent || '';
+    const fromName = document.getElementById('kadViewFrom')?.textContent || '';
+
+    if (isCode) {
+      // Draw code editor
+      const edX = 60, edY = 500, edW = W - 120, edR = 24;
+
+      // Editor bg
+      ctx.fillStyle = '#181825';
+      ctx.beginPath();
+      ctx.roundRect(edX, edY, edW, H - edY - 400, edR);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Tab bar
+      ctx.fillStyle = '#11111b';
+      ctx.beginPath();
+      ctx.roundRect(edX, edY, edW, 48, [edR, edR, 0, 0]);
+      ctx.fill();
+
+      // Dots
+      const dotColors = ['#f38ba8','#f9e2af','#a6e3a1'];
+      dotColors.forEach((clr, i) => {
+        ctx.fillStyle = clr;
+        ctx.beginPath();
+        ctx.arc(edX + 28 + i * 24, edY + 24, 7, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Tab label
+      const codeEl = document.getElementById('kadCodeEditor');
+      const tabName = codeEl?.querySelector('.code-tab-name')?.textContent || 'JavaScript';
+      ctx.fillStyle = 'rgba(205,214,244,0.5)';
+      ctx.font = '500 24px "SF Mono", "Courier New", monospace';
+      ctx.fillText(tabName, edX + 108, edY + 32);
+
+      // Code lines
+      const codeLines = codeEl?.querySelectorAll('.code-line') || [];
+      const lineH = 48;
+      let cy = edY + 80;
+      const colorMap = { ck: '#cba6f7', cs: '#a6e3a1', cc: '#6c7086', cf: '#89b4fa', cv: '#f9e2af', cn: '#fab387', ct: '#f38ba8' };
+
+      codeLines.forEach((line, i) => {
+        // Line number
+        ctx.fillStyle = 'rgba(205,214,244,0.2)';
+        ctx.font = '400 22px "SF Mono", "Courier New", monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(String(i + 1), edX + 44, cy + 6);
+        ctx.textAlign = 'left';
+
+        // Code text — parse spans for colors
+        const textEl = line.querySelector('.code-text');
+        if (textEl) {
+          let tx = edX + 64;
+          textEl.childNodes.forEach(node => {
+            if (node.nodeType === 3) {
+              ctx.fillStyle = '#cdd6f4';
+              ctx.font = '400 24px "SF Mono", "Courier New", monospace';
+              ctx.fillText(node.textContent, tx, cy + 6);
+              tx += ctx.measureText(node.textContent).width;
+            } else if (node.tagName === 'SPAN') {
+              const cls = node.className;
+              ctx.fillStyle = colorMap[cls] || '#cdd6f4';
+              ctx.font = '400 24px "SF Mono", "Courier New", monospace';
+              ctx.fillText(node.textContent, tx, cy + 6);
+              tx += ctx.measureText(node.textContent).width;
+            }
+          });
+        }
+        cy += lineH;
+      });
+
+      // Success line
+      ctx.fillStyle = '#a6e3a1';
+      ctx.font = '600 24px "SF Mono", "Courier New", monospace';
+      ctx.fillText('✓ Build successful — Selamat Hari Raya!', edX + 28, cy + 30);
+
+      // Branding
+      ctx.fillStyle = 'rgba(205,214,244,0.25)';
+      ctx.font = '500 22px "SF Mono", "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('bolehsalam.com', W / 2, H - 80);
+      ctx.textAlign = 'left';
+
+    } else {
+      // Classic card
+      const kadBg = getComputedStyle(view).getPropertyValue('--kad-bg').trim() || '#166534';
+      const kadAccent = getComputedStyle(view).getPropertyValue('--kad-accent').trim() || '#c8a45c';
+
+      // Greeting
+      ctx.fillStyle = kadBg;
+      ctx.font = '800 72px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Selamat Hari Raya', W / 2, 620);
+      ctx.fillText('Aidilfitri', W / 2, 700);
+
+      // Divider
+      ctx.fillStyle = kadAccent;
+      ctx.fillRect(W / 2 - 50, 740, 100, 4);
+
+      // Message — word wrap
+      ctx.fillStyle = '#374151';
+      ctx.font = '500 36px "Plus Jakarta Sans", sans-serif';
+      const words = msg.split(' ');
+      let line = '', lineY = 810;
+      words.forEach(word => {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > W - 160) {
+          ctx.fillText(line.trim(), W / 2, lineY);
+          line = word + ' ';
+          lineY += 52;
+        } else {
+          line = test;
+        }
+      });
+      if (line.trim()) ctx.fillText(line.trim(), W / 2, lineY);
+
+      // From
+      ctx.fillStyle = kadBg;
+      ctx.font = '700 40px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('— ' + fromName, W / 2, lineY + 90);
+
+      // Branding
+      ctx.fillStyle = 'rgba(0,0,0,0.15)';
+      ctx.font = '500 24px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('bolehsalam.com', W / 2, H - 80);
+      ctx.textAlign = 'left';
+    }
+
+    // Decorative particles on the image
+    const sparkColors = isCode
+      ? ['#89b4fa','#a6e3a1','#cba6f7','#f9e2af']
+      : ['#c8a45c','#d4b876','#22c55e','#f0e4bc'];
+    for (let i = 0; i < 40; i++) {
+      const sx = Math.random() * W, sy = Math.random() * H;
+      const ss = 2 + Math.random() * 5;
+      const sc = sparkColors[Math.floor(Math.random() * sparkColors.length)];
+      ctx.beginPath();
+      ctx.arc(sx, sy, ss, 0, Math.PI * 2);
+      ctx.fillStyle = sc;
+      ctx.globalAlpha = 0.3 + Math.random() * 0.4;
+      ctx.shadowBlur = isCode ? 12 : 4;
+      ctx.shadowColor = sc;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+
+    // Download
+    c.toBlob(blob => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'kad-raya-' + toName.replace(/\s+/g, '-').toLowerCase() + '.png';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(t('kadSaved'));
+    }, 'image/png');
+  }
+
+  // ========================================
+  // Share Card View (for recipients)
+  // ========================================
+  async function shareKadView() {
+    const view = document.getElementById('kadView');
+    const toName = document.getElementById('kadViewTo').textContent;
+    const url = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Kad Raya dari ' + toName,
+          text: 'Saya terima Kad Raya digital! Buat satu untuk orang tersayang anda.',
+          url: url.includes('kad=') ? url : window.location.origin + window.location.pathname,
+        });
+      } catch { /* cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast(t('copied'));
+      } catch {
         showToast(t('copied'));
       }
     }
@@ -1375,4 +1616,6 @@
   window.openKadAnimation = openKadAnimation;
   window.closeKadView = closeKadView;
   window.kadGoToCreate = kadGoToCreate;
+  window.saveKadImage = saveKadImage;
+  window.shareKadView = shareKadView;
 })();

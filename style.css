@@ -2082,6 +2082,41 @@ input:focus-visible {
 }
 
 /* ========================================
+   Kad Raya — Recipient Action Buttons
+   ======================================== */
+.kad-recipient-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.kad-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.15);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all var(--transition);
+}
+
+.kad-action-btn:active {
+  transform: scale(0.95);
+}
+
+.kad-view.code-mode .kad-action-btn {
+  background: rgba(255,255,255,0.08);
+  color: rgba(205,214,244,0.7);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* ========================================
    Kad Raya — Sealed Clickable + Glow
    ======================================== */
 .kad-sealed {

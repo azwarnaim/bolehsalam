@@ -10,10 +10,10 @@
 
   <!-- Open Graph (Facebook, WhatsApp, Telegram, LinkedIn) -->
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://bolehsalam.com/">
-  <meta property="og:title" content="Boleh Salam? — Semak Hubungan Mahram">
-  <meta property="og:description" content="Tak pasti boleh salam ke tak? Semak hubungan mahram dengan mudah dan pantas. 40+ hubungan keluarga diliputi.">
-  <meta property="og:image" content="https://bolehsalam.com/og-image.png">
+  <meta property="og:url" id="ogUrl" content="https://bolehsalam.com/">
+  <meta property="og:title" id="ogTitle" content="Boleh Salam? — Semak Hubungan Mahram">
+  <meta property="og:description" id="ogDesc" content="Tak pasti boleh salam ke tak? Semak hubungan mahram dengan mudah dan pantas. 40+ hubungan keluarga diliputi.">
+  <meta property="og:image" id="ogImage" content="https://bolehsalam.com/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Boleh Salam? — Semak hubungan mahram dengan mudah">
@@ -23,9 +23,9 @@
 
   <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Boleh Salam? — Semak Hubungan Mahram">
-  <meta name="twitter:description" content="Tak pasti boleh salam ke tak? Semak hubungan mahram dengan mudah dan pantas.">
-  <meta name="twitter:image" content="https://bolehsalam.com/og-image.png">
+  <meta name="twitter:title" id="twTitle" content="Boleh Salam? — Semak Hubungan Mahram">
+  <meta name="twitter:description" id="twDesc" content="Tak pasti boleh salam ke tak? Semak hubungan mahram dengan mudah dan pantas.">
+  <meta name="twitter:image" id="twImage" content="https://bolehsalam.com/og-image.png">
 
   <title>Boleh Salam? — Semak Hubungan Mahram</title>
 
@@ -288,6 +288,16 @@
         <div class="code-editor" id="kadCodeEditor"></div>
       </div>
       <div class="kad-opened-actions">
+        <div class="kad-recipient-actions" id="kadRecipientActions">
+          <button class="kad-action-btn" onclick="saveKadImage()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-i18n="kadSaveImg">Simpan Gambar</span>
+          </button>
+          <button class="kad-action-btn" onclick="shareKadView()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span data-i18n="kadShareThis">Kongsi Kad</span>
+          </button>
+        </div>
         <button class="kad-cta" id="kadCtaBtn" onclick="kadGoToCreate()">
           <span id="kadCtaText" data-i18n="kadMakeYours">Buat Kad Anda</span>
         </button>

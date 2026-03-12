@@ -402,6 +402,37 @@
     return t('treeNonMahramNote');
   }
 
+  function buildNodeEl(member) {
+    const status = getNodeStatus(member.g, member.type, treeGender);
+    const node = document.createElement('button');
+    node.className = `tree-node ${status}`;
+    const secLang = currentLang === 'ms' ? 'en' : 'ms';
+    node.innerHTML = `
+      <span class="tree-node-dot ${status}"></span>
+      <div class="tree-node-text">
+        <span class="tree-node-name">${member[currentLang]}</span>
+        <span class="tree-node-sub">${member[secLang]}</span>
+      </div>
+      <svg class="tree-node-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    `;
+    node.onclick = () => showTreeDetail(member, status);
+    return node;
+  }
+
+  function buildCard(titleKey, members) {
+    const card = document.createElement('div');
+    card.className = 'tree-card';
+    const header = document.createElement('div');
+    header.className = 'tree-card-header';
+    header.innerHTML = `<h3 class="tree-card-title">${t(titleKey)}</h3>`;
+    card.appendChild(header);
+    const body = document.createElement('div');
+    body.className = 'tree-card-body';
+    for (const m of members) body.appendChild(buildNodeEl(m));
+    card.appendChild(body);
+    return card;
+  }
+
   function renderTree() {
     const container = document.getElementById('treeContainer');
     container.innerHTML = '';
@@ -419,94 +450,89 @@
       sgToggle.classList.toggle('active', showSameGender);
     }
 
-    let zoneContainer = document.createElement('div');
-    zoneContainer.className = 'tree-zone';
-    container.appendChild(zoneContainer);
+    // Collect non-mahram and mahram members across all groups
+    const nonMahramGroups = []; // { titleKey, members[] }
+    const mahramGroups = [];    // { titleKey, members[], zoneLabel? }
+
+    let currentZoneLabel = null;
 
     for (const group of treeData) {
-      // ANDA centerpiece
-      if (group.isYou) {
-        const youEl = document.createElement('div');
-        youEl.className = 'tree-you';
-        youEl.innerHTML = `
-          <div class="tree-you-connector"></div>
-          <span class="tree-you-label">${t('treeYou')}</span>
-          <div class="tree-you-connector"></div>
-        `;
-        container.appendChild(youEl);
-
-        // New zone for post-ANDA groups
-        zoneContainer = document.createElement('div');
-        zoneContainer.className = 'tree-zone';
-        container.appendChild(zoneContainer);
+      if (group.isYou || group.isDivider) {
+        if (group.isDivider) currentZoneLabel = group.label;
         continue;
       }
 
-      // Section dividers (Musaharah / Radhaah)
-      if (group.isDivider) {
-        zoneContainer = document.createElement('div');
-        zoneContainer.className = 'tree-zone';
-        const header = document.createElement('div');
-        header.className = 'tree-zone-header';
-        header.innerHTML = `<span>${t(group.label)}</span>`;
-        zoneContainer.appendChild(header);
-        container.appendChild(zoneContainer);
-        continue;
-      }
-
-      // Filter members
       const allMembers = group.members.filter(m => !m.forUser || m.forUser === treeGender);
       if (allMembers.length === 0) continue;
 
       const opposite = allMembers.filter(m => m.g !== treeGender);
       const same = allMembers.filter(m => m.g === treeGender);
       const visible = showSameGender ? allMembers : opposite;
+      if (visible.length === 0) continue;
 
-      // If all members are same-gender and hidden, show collapsed card
-      if (visible.length === 0 && same.length > 0) {
-        const card = document.createElement('div');
-        card.className = 'tree-card tree-card--collapsed';
-        card.innerHTML = `
-          <div class="tree-card-header">
-            <h3 class="tree-card-title">${t('tree_' + group.id)}</h3>
-            <span class="tree-card-samegender-badge">${t('treeSameGender')}</span>
-          </div>
-        `;
-        zoneContainer.appendChild(card);
-        continue;
+      // Split: non-mahram opposite-gender vs the rest
+      const nonMahram = visible.filter(m => {
+        const s = getNodeStatus(m.g, m.type, treeGender);
+        return s === 'non-mahram';
+      });
+      const mahram = visible.filter(m => {
+        const s = getNodeStatus(m.g, m.type, treeGender);
+        return s !== 'non-mahram';
+      });
+
+      if (nonMahram.length > 0) {
+        nonMahramGroups.push({ titleKey: 'tree_' + group.id, members: nonMahram });
       }
+      if (mahram.length > 0) {
+        mahramGroups.push({
+          titleKey: 'tree_' + group.id,
+          members: mahram,
+          zoneLabel: currentZoneLabel,
+        });
+        // Only show zone label once
+        currentZoneLabel = null;
+      }
+    }
 
-      // Build card
-      const card = document.createElement('div');
-      card.className = 'tree-card';
+    // === RENDER: Tak Boleh Salam zone (top) ===
+    if (nonMahramGroups.length > 0) {
+      const zone = document.createElement('div');
+      zone.className = 'tree-zone tree-zone--danger';
 
       const header = document.createElement('div');
-      header.className = 'tree-card-header';
-      header.innerHTML = `<h3 class="tree-card-title">${t('tree_' + group.id)}</h3>`;
-      card.appendChild(header);
+      header.className = 'tree-zone-header tree-zone-header--danger';
+      header.innerHTML = `<span>${t('treeTakBoleh')}</span>`;
+      zone.appendChild(header);
 
-      const body = document.createElement('div');
-      body.className = 'tree-card-body';
-
-      for (const member of visible) {
-        const status = getNodeStatus(member.g, member.type, treeGender);
-        const node = document.createElement('button');
-        node.className = `tree-node ${status}`;
-        const secLang = currentLang === 'ms' ? 'en' : 'ms';
-        node.innerHTML = `
-          <span class="tree-node-dot ${status}"></span>
-          <div class="tree-node-text">
-            <span class="tree-node-name">${member[currentLang]}</span>
-            <span class="tree-node-sub">${member[secLang]}</span>
-          </div>
-          <svg class="tree-node-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        `;
-        node.onclick = () => showTreeDetail(member, status);
-        body.appendChild(node);
+      for (const g of nonMahramGroups) {
+        zone.appendChild(buildCard(g.titleKey, g.members));
       }
+      container.appendChild(zone);
+    }
 
-      card.appendChild(body);
-      zoneContainer.appendChild(card);
+    // === RENDER: Boleh Salam zone (below) ===
+    if (mahramGroups.length > 0) {
+      const zone = document.createElement('div');
+      zone.className = 'tree-zone tree-zone--safe';
+
+      const header = document.createElement('div');
+      header.className = 'tree-zone-header tree-zone-header--safe';
+      header.innerHTML = `<span>${t('treeBoleh')}</span>`;
+      zone.appendChild(header);
+
+      let lastZoneLabel = null;
+      for (const g of mahramGroups) {
+        // Insert sub-zone divider (Musaharah / Radhaah)
+        if (g.zoneLabel && g.zoneLabel !== lastZoneLabel) {
+          const divider = document.createElement('div');
+          divider.className = 'tree-zone-divider';
+          divider.innerHTML = `<span>${t(g.zoneLabel)}</span>`;
+          zone.appendChild(divider);
+          lastZoneLabel = g.zoneLabel;
+        }
+        zone.appendChild(buildCard(g.titleKey, g.members));
+      }
+      container.appendChild(zone);
     }
   }
 

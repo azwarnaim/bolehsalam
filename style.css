@@ -1415,10 +1415,946 @@ input:focus-visible {
   justify-content: center;
 }
 
+/* ========================================
+   Welcome Divider
+   ======================================== */
+.welcome-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 300px;
+  margin: 24px 0 20px;
+}
+
+.welcome-divider::before,
+.welcome-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.welcome-divider span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: lowercase;
+}
+
+.btn-kad {
+  margin-bottom: 0;
+}
+
+/* ========================================
+   Kad Raya — Create Form
+   ======================================== */
+.kad-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.kad-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kad-field label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.kad-field input,
+.kad-field textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  outline: none;
+  font-family: var(--font);
+  resize: none;
+}
+
+.kad-field input:focus,
+.kad-field textarea:focus {
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.1);
+}
+
+.kad-templates {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.kad-tpl-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.kad-tpl-btn:hover {
+  border-color: var(--gold-400);
+  background: var(--gold-100);
+}
+
+.kad-theme-options {
+  display: flex;
+  gap: 10px;
+}
+
+.kad-theme-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  border: 2.5px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition);
+  padding: 0;
+}
+
+.kad-theme-btn.active {
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 2px rgba(22,101,52,0.2);
+  transform: scale(1.1);
+}
+
+.kad-theme-swatch {
+  flex: 2;
+  display: block;
+}
+
+.kad-theme-accent {
+  flex: 1;
+  display: block;
+}
+
+.kad-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.kad-actions .btn-secondary,
+.kad-actions .btn-primary {
+  flex: 1;
+  justify-content: center;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+}
+
+/* ========================================
+   Kad Raya — Full Screen View
+   ======================================== */
+.kad-view {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  overflow: hidden;
+  --kad-bg: #166534;
+  --kad-accent: #c8a45c;
+}
+
+.kad-view.active {
+  display: block;
+}
+
+.kad-view-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--kad-bg);
+  transition: background 0.8s ease;
+}
+
+.kad-view-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,255,255,0.04) 30px, rgba(255,255,255,0.04) 31px),
+    repeating-linear-gradient(-45deg, transparent, transparent 30px, rgba(255,255,255,0.04) 30px, rgba(255,255,255,0.04) 31px);
+  transition: opacity 0.8s ease;
+}
+
+.kad-view.opened .kad-view-bg {
+  background: #fefdf8;
+}
+
+.kad-view.opened .kad-view-bg::before {
+  opacity: 0.3;
+}
+
+/* Sealed state */
+.kad-sealed {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all 0.6s ease;
+  padding: 20px;
+}
+
+.kad-view.opened .kad-sealed {
+  opacity: 0;
+  transform: scale(1.3);
+  pointer-events: none;
+}
+
+.kad-sealed-label {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.kad-sealed-name {
+  color: var(--kad-accent);
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.kad-ketupat {
+  width: 120px;
+  height: 150px;
+  margin-bottom: 40px;
+  animation: floatKetupat 3s ease-in-out infinite;
+}
+
+.kad-ketupat svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.3));
+}
+
+.kad-open-btn {
+  background: var(--kad-accent);
+  color: var(--kad-bg);
+  padding: 14px 36px;
+  border-radius: var(--radius-full);
+  font-size: 0.92rem;
+  font-weight: 700;
+  animation: kadBtnPulse 2s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  letter-spacing: 0.5px;
+}
+
+@keyframes kadBtnPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.2); transform: scale(1); }
+  50% { box-shadow: 0 4px 40px rgba(0,0,0,0.3); transform: scale(1.04); }
+}
+
+/* Sparkles */
+.kad-sparkles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.kad-sparkle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  opacity: 0;
+  animation: kadSparkleBurst 0.8s var(--delay) ease-out forwards;
+}
+
+@keyframes kadSparkleBurst {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0) scale(1); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(0); }
+}
+
+/* Opened state */
+.kad-opened {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  padding: 40px 28px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease 0.3s;
+}
+
+.kad-view.opened .kad-opened {
+  opacity: 1;
+  z-index: 4;
+  pointer-events: auto;
+}
+
+.kad-opened-greeting {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--kad-bg);
+  text-align: center;
+  line-height: 1.3;
+  margin-bottom: 16px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease 0.5s, transform 0.6s ease 0.5s;
+}
+
+.kad-view.opened .kad-opened-greeting {
+  opacity: 1;
+  transform: translateY(0);
+  background: linear-gradient(
+    90deg,
+    var(--kad-bg) 0%,
+    var(--kad-accent) 40%,
+    #fff8e1 50%,
+    var(--kad-accent) 60%,
+    var(--kad-bg) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 3.5s linear 1.5s infinite;
+  filter: drop-shadow(0 0 12px rgba(200,164,92,0.3));
+}
+
+@keyframes textShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Canvas particle overlay */
+#kadCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.kad-opened-divider {
+  width: 60px;
+  height: 3px;
+  background: var(--kad-accent);
+  border-radius: 2px;
+  margin-bottom: 24px;
+  opacity: 0;
+  transform: scaleX(0);
+  transition: all 0.4s ease 0.8s;
+}
+
+.kad-view.opened .kad-opened-divider {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.kad-opened-msg {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #374151;
+  text-align: center;
+  max-width: 320px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.6s ease 1s;
+}
+
+.kad-view.opened .kad-opened-msg {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kad-opened-from {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--kad-bg);
+  margin-bottom: 48px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s ease 1.2s;
+}
+
+.kad-view.opened .kad-opened-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.kad-opened-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease 1.5s;
+}
+
+.kad-view.opened .kad-opened-actions {
+  opacity: 1;
+}
+
+.kad-cta {
+  background: var(--kad-bg);
+  color: white;
+  padding: 14px 32px;
+  border-radius: var(--radius-full);
+  font-size: 0.92rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  transition: all var(--transition);
+}
+
+.kad-cta:active {
+  transform: scale(0.96);
+}
+
+.kad-close-btn {
+  color: var(--text-light);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 16px;
+}
+
+/* ========================================
+   Kad Raya — Style Toggle (Classic / Coder)
+   ======================================== */
+.kad-style-toggle {
+  display: flex;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.kad-style-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all var(--transition);
+  text-align: center;
+}
+
+.kad-style-btn.active {
+  background: linear-gradient(135deg, var(--green-800), var(--green-700));
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ========================================
+   Kad Raya — Coder Language Picker
+   ======================================== */
+.kad-lang-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.kad-lang-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  color: var(--text-secondary);
+  transition: all var(--transition);
+}
+
+.kad-lang-btn.active {
+  border-color: var(--green-600);
+  background: var(--green-50);
+  color: var(--green-800);
+  box-shadow: 0 0 0 2px rgba(22,101,52,0.15);
+}
+
+/* ========================================
+   Kad Raya — Code Mode View Overrides
+   ======================================== */
+/* Terminal-style sealed state */
+.kad-view.code-mode .kad-view-bg {
+  background: #1e1e2e;
+}
+
+.kad-view.code-mode .kad-view-bg::before {
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 23px, rgba(255,255,255,0.03) 23px, rgba(255,255,255,0.03) 24px);
+}
+
+.kad-view.code-mode .kad-sealed-label {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: rgba(166,227,161,0.6);
+  font-size: 0.8rem;
+}
+
+.kad-view.code-mode .kad-sealed-name {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: #89b4fa;
+}
+
+.kad-view.code-mode .kad-ketupat {
+  display: none;
+}
+
+.kad-view.code-mode .kad-sealed .kad-code-icon {
+  display: block;
+  font-size: 4rem;
+  margin-bottom: 40px;
+  animation: floatKetupat 3s ease-in-out infinite;
+}
+
+.kad-code-icon {
+  display: none;
+}
+
+.kad-view.code-mode .kad-open-btn {
+  background: #89b4fa;
+  color: #1e1e2e;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.85rem;
+}
+
+/* Dark opened background for code mode */
+.kad-view.code-mode.opened .kad-view-bg {
+  background: #1e1e2e;
+}
+
+.kad-view.code-mode.opened .kad-view-bg::before {
+  opacity: 1;
+}
+
+/* ========================================
+   Kad Raya — Code Editor
+   ======================================== */
+.kad-classic-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.kad-code-content {
+  display: none;
+  width: 100%;
+  max-width: 420px;
+}
+
+.kad-view.code-mode .kad-classic-content {
+  display: none;
+}
+
+.kad-view.code-mode .kad-code-content {
+  display: block;
+}
+
+.code-editor {
+  background: #181825;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  width: 100%;
+}
+
+.code-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #11111b;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.code-tab-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.code-tab-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.code-tab-dot:nth-child(1) { background: #f38ba8; }
+.code-tab-dot:nth-child(2) { background: #f9e2af; }
+.code-tab-dot:nth-child(3) { background: #a6e3a1; }
+
+.code-tab-name {
+  font-size: 0.72rem;
+  color: rgba(205,214,244,0.5);
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.code-body {
+  padding: 16px 0;
+  overflow-x: auto;
+}
+
+.code-line {
+  display: flex;
+  padding: 0 16px;
+  line-height: 1.7;
+  font-size: 0.78rem;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: codeLineReveal 0.4s ease forwards;
+  animation-delay: var(--line-delay, 0s);
+}
+
+@keyframes codeLineReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.code-num {
+  color: rgba(205,214,244,0.2);
+  min-width: 28px;
+  text-align: right;
+  padding-right: 12px;
+  user-select: none;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+}
+
+.code-text {
+  color: #cdd6f4;
+  white-space: pre;
+}
+
+/* Catppuccin Mocha Syntax Highlighting */
+.ck { color: #cba6f7; }  /* keyword — mauve */
+.cs { color: #a6e3a1; }  /* string — green */
+.cc { color: #6c7086; }  /* comment — overlay0 */
+.cf { color: #89b4fa; }  /* function — blue */
+.cv { color: #f9e2af; }  /* variable — yellow */
+.cn { color: #fab387; }  /* number — peach */
+.ct { color: #f38ba8; }  /* tag — red */
+
+/* ========================================
+   Kad Raya — Code Mode CTA / Close
+   ======================================== */
+.kad-view.code-mode .kad-cta {
+  background: #89b4fa;
+  color: #1e1e2e;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.85rem;
+}
+
+.kad-view.code-mode .kad-close-btn {
+  color: rgba(205,214,244,0.4);
+}
+
+.kad-view.code-mode .kad-opened-actions {
+  margin-top: 24px;
+}
+
+/* ========================================
+   Kad Raya — Sealed Clickable + Glow
+   ======================================== */
+.kad-sealed {
+  cursor: pointer;
+}
+
+.kad-ketupat svg {
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.3)) drop-shadow(0 0 20px rgba(200,164,92,0.25));
+  animation: ketupatGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes ketupatGlow {
+  from { filter: drop-shadow(0 4px 24px rgba(0,0,0,0.3)) drop-shadow(0 0 15px rgba(200,164,92,0.15)); }
+  to { filter: drop-shadow(0 4px 24px rgba(0,0,0,0.3)) drop-shadow(0 0 35px rgba(200,164,92,0.5)); }
+}
+
+.kad-view.code-mode .kad-code-icon {
+  filter: drop-shadow(0 0 20px rgba(137,180,250,0.4));
+  animation: codeIconGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes codeIconGlow {
+  from { filter: drop-shadow(0 0 15px rgba(137,180,250,0.2)); }
+  to { filter: drop-shadow(0 0 35px rgba(137,180,250,0.6)); }
+}
+
+/* ========================================
+   Kad Raya — Ambient Particles (Sealed)
+   ======================================== */
+.kad-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.kad-ambient-particle {
+  position: absolute;
+  left: var(--x);
+  bottom: -10px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: rgba(200, 164, 92, 0.5);
+  animation: ambientFloat var(--dur) ease-in-out var(--delay) infinite;
+}
+
+.kad-view.code-mode .kad-ambient-particle {
+  background: rgba(166, 227, 161, 0.35);
+}
+
+@keyframes ambientFloat {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  50% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+}
+
+/* ========================================
+   Kad Raya — Typing Cursor
+   ======================================== */
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: currentColor;
+  margin-left: 1px;
+  animation: cursorBlink 0.7s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Classic: typed reveal overrides */
+.kad-opened-msg.typed {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  min-height: 1.5em;
+}
+
+.kad-opened-from.typed-pending,
+.kad-opened-actions.typed-pending {
+  opacity: 0 !important;
+  transform: translateY(10px) !important;
+  transition: none !important;
+}
+
+.kad-opened-from.typed-show {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition: all 0.6s ease !important;
+}
+
+.kad-opened-actions.typed-show {
+  opacity: 1 !important;
+  transition: opacity 0.5s ease !important;
+}
+
+/* ========================================
+   Kad Raya — Code Cursor + Success
+   ======================================== */
+.code-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background: #cdd6f4;
+  animation: cursorBlink 0.7s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+
+.code-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  margin: 8px 16px 4px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a6e3a1;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  opacity: 0;
+  animation: successReveal 0.6s ease 0.2s forwards;
+}
+
+@keyframes successReveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   Kad Raya — Firework Celebration
+   ======================================== */
+.celebration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+}
+
+/* Rocket trail shooting upward */
+.fw-rocket {
+  position: absolute;
+  bottom: 100%;
+  width: 3px;
+  height: 14px;
+  background: linear-gradient(to top, transparent, var(--color));
+  border-radius: 2px;
+  opacity: 0;
+  left: var(--left);
+  animation: fwRocketUp 0.5s ease-out var(--delay) forwards;
+}
+
+.fw-rocket::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color);
+  box-shadow: 0 0 8px var(--color), 0 0 16px var(--color);
+}
+
+@keyframes fwRocketUp {
+  0% { bottom: 0; opacity: 1; }
+  80% { opacity: 1; }
+  100% { bottom: var(--rise); opacity: 0; }
+}
+
+/* Burst container */
+.fw-burst {
+  position: absolute;
+  left: var(--left);
+  top: var(--top);
+  pointer-events: none;
+}
+
+/* Explosion particles */
+.fw-particle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--color);
+  box-shadow: 0 0 4px var(--color), 0 0 8px var(--color);
+  opacity: 0;
+  animation: fwBurst var(--dur, 1s) ease-out var(--p-delay) forwards;
+}
+
+@keyframes fwBurst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(calc(var(--x) * 0.5), calc(var(--y) * 0.3)) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), calc(var(--y) + var(--gravity))) scale(0);
+  }
+}
+
+/* Glow flash ring on explosion */
+.fw-flash {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0;
+  animation: fwFlash 0.5s ease-out var(--flash-delay) forwards;
+}
+
+@keyframes fwFlash {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+    box-shadow: 0 0 30px 15px var(--color), 0 0 60px 30px rgba(255,255,255,0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* Sparkle rain (after fireworks) */
+.sparkle-rain {
+  position: absolute;
+  top: -10px;
+  left: var(--left);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--color);
+  box-shadow: 0 0 3px var(--color);
+  opacity: 0;
+  animation: sparkleDown var(--fall-dur) ease-in var(--s-delay) forwards;
+}
+
+@keyframes sparkleDown {
+  0% { opacity: 0; transform: translateY(0) translateX(0); }
+  10% { opacity: 1; }
+  50% { opacity: 0.8; transform: translateY(50vh) translateX(var(--drift)); }
+  100% { opacity: 0; transform: translateY(100vh) translateX(calc(var(--drift) * 2)); }
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
 @media (max-width: 380px) {
   .title { font-size: 2.2rem; }
   .step-title { font-size: 1.3rem; }
   .category-grid { grid-template-columns: 1fr; }
   .quick-cards { gap: 6px; }
   .quick-card { padding: 10px 6px; }
+  .kad-sealed-name { font-size: 1.6rem; }
+  .kad-opened-greeting { font-size: 1.6rem; }
+  .code-line { font-size: 0.68rem; }
+  .code-editor { border-radius: 8px; }
+  .kad-lang-options { gap: 6px; }
+  .kad-lang-btn { padding: 5px 10px; font-size: 0.72rem; }
 }

@@ -97,6 +97,16 @@
           </button>
         </div>
 
+        <div class="welcome-divider"><span data-i18n="or">atau</span></div>
+
+        <button class="btn-secondary btn-kad" onclick="goToStep('kad-create')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          <span data-i18n="kadBtn">Buat Kad Raya Digital</span>
+        </button>
+
         <!-- Quick Check Section -->
         <div class="quick-check" id="quickCheck">
           <p class="quick-check-title" data-i18n="quickTitle">Soalan Popular</p>
@@ -169,7 +179,123 @@
       </div>
     </section>
 
+    <!-- Kad Raya Create -->
+    <section class="step" id="step-kad-create">
+      <div class="step-content">
+        <h2 class="step-title" data-i18n="kadTitle">Buat Kad Raya</h2>
+        <p class="tree-subtitle" data-i18n="kadSubtitle">Cipta kad digital unik untuk orang tersayang</p>
 
+        <div class="kad-form">
+          <div class="kad-field">
+            <label data-i18n="kadFrom">Nama anda</label>
+            <input type="text" id="kadFrom" maxlength="30">
+          </div>
+          <div class="kad-field">
+            <label data-i18n="kadTo">Nama penerima</label>
+            <input type="text" id="kadTo" maxlength="30">
+          </div>
+          <div class="kad-field">
+            <label data-i18n="kadMsg">Mesej</label>
+            <textarea id="kadMsg" rows="3" maxlength="200"></textarea>
+            <div class="kad-templates">
+              <button class="kad-tpl-btn" onclick="useKadTemplate(0)">Formal</button>
+              <button class="kad-tpl-btn" onclick="useKadTemplate(1)">Santai</button>
+              <button class="kad-tpl-btn" onclick="useKadTemplate(2)">Mesra</button>
+            </div>
+          </div>
+          <!-- Style toggle -->
+          <div class="kad-field">
+            <label>Style</label>
+            <div class="kad-style-toggle">
+              <button class="kad-style-btn active" data-style="classic" onclick="setKadStyle('classic')">Klasik</button>
+              <button class="kad-style-btn" data-style="code" onclick="setKadStyle('code')">&lt;/Coder&gt;</button>
+            </div>
+          </div>
+
+          <!-- Classic: color themes -->
+          <div id="kadClassicOptions" class="kad-field">
+            <label data-i18n="kadTheme">Tema warna</label>
+            <div class="kad-theme-options">
+              <button class="kad-theme-btn active" data-theme="0" onclick="pickKadTheme(this)"><span class="kad-theme-swatch" style="background:#166534"></span><span class="kad-theme-accent" style="background:#c8a45c"></span></button>
+              <button class="kad-theme-btn" data-theme="1" onclick="pickKadTheme(this)"><span class="kad-theme-swatch" style="background:#7c2d12"></span><span class="kad-theme-accent" style="background:#f59e0b"></span></button>
+              <button class="kad-theme-btn" data-theme="2" onclick="pickKadTheme(this)"><span class="kad-theme-swatch" style="background:#1e3a5f"></span><span class="kad-theme-accent" style="background:#93c5fd"></span></button>
+              <button class="kad-theme-btn" data-theme="3" onclick="pickKadTheme(this)"><span class="kad-theme-swatch" style="background:#581c87"></span><span class="kad-theme-accent" style="background:#d8b4fe"></span></button>
+            </div>
+          </div>
+
+          <!-- Coder: language picker -->
+          <div id="kadCodeOptions" class="kad-field" style="display:none">
+            <label>Language</label>
+            <div class="kad-lang-options">
+              <button class="kad-lang-btn active" data-lang="js" onclick="setKadLang(this)">JavaScript</button>
+              <button class="kad-lang-btn" data-lang="py" onclick="setKadLang(this)">Python</button>
+              <button class="kad-lang-btn" data-lang="git" onclick="setKadLang(this)">Git</button>
+              <button class="kad-lang-btn" data-lang="sql" onclick="setKadLang(this)">SQL</button>
+              <button class="kad-lang-btn" data-lang="html" onclick="setKadLang(this)">HTML</button>
+            </div>
+          </div>
+          <div class="kad-actions">
+            <button class="btn-secondary" onclick="previewKad()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span data-i18n="kadPreview">Lihat Preview</span>
+            </button>
+            <button class="btn-primary" onclick="shareKad()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <span data-i18n="kadShare">Kongsi Kad</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Kad Raya View (full-screen overlay) -->
+  <div class="kad-view" id="kadView">
+    <div class="kad-view-bg"></div>
+
+    <div class="kad-sealed" onclick="openKadAnimation()">
+      <p class="kad-sealed-label" data-i18n="kadForYou">Ada kad Raya untuk</p>
+      <p class="kad-sealed-name" id="kadViewTo"></p>
+      <div class="kad-ketupat" aria-hidden="true">
+        <svg viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 18 L68 50 L40 82 L12 50 Z" stroke="var(--kad-accent)" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M26 34 L54 66" stroke="var(--kad-accent)" stroke-width="1" opacity="0.35"/>
+          <path d="M54 34 L26 66" stroke="var(--kad-accent)" stroke-width="1" opacity="0.35"/>
+          <path d="M40 18 L35 8" stroke="var(--kad-accent)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M40 18 L45 8" stroke="var(--kad-accent)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M35 8 Q40 5 45 8" stroke="var(--kad-accent)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="kad-code-icon" aria-hidden="true">&#x1F4BB;</div>
+      <button class="kad-open-btn" onclick="openKadAnimation()">
+        <span data-i18n="kadTap">Ketuk untuk buka</span>
+      </button>
+    </div>
+
+    <div class="kad-sparkles" id="kadSparkles"></div>
+
+    <div class="kad-opened">
+      <!-- Classic mode content -->
+      <div class="kad-classic-content">
+        <p class="kad-opened-greeting">Selamat Hari Raya<br>Aidilfitri</p>
+        <div class="kad-opened-divider"></div>
+        <p class="kad-opened-msg" id="kadViewMsg"></p>
+        <p class="kad-opened-from">&mdash; <span id="kadViewFrom"></span></p>
+      </div>
+      <!-- Coder mode content -->
+      <div class="kad-code-content">
+        <div class="code-editor" id="kadCodeEditor"></div>
+      </div>
+      <div class="kad-opened-actions">
+        <button class="kad-cta" id="kadCtaBtn" onclick="kadGoToCreate()">
+          <span id="kadCtaText" data-i18n="kadMakeYours">Buat Kad Anda</span>
+        </button>
+        <button class="kad-close-btn" onclick="closeKadView()">
+          <span data-i18n="kadClose">Tutup</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <footer class="footer">

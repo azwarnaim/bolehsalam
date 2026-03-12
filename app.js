@@ -65,6 +65,24 @@
       tree_inlaws_child: 'Menantu',
       tree_step: 'Keluarga Tiri',
       tree_milk: 'Saudara Susuan',
+      kadBtn: 'Buat Kad Raya Digital',
+      kadTitle: 'Buat Kad Raya',
+      kadSubtitle: 'Cipta kad digital unik untuk orang tersayang',
+      kadFrom: 'Nama anda',
+      kadTo: 'Nama penerima',
+      kadMsg: 'Mesej',
+      kadTheme: 'Tema warna',
+      kadPreview: 'Lihat Preview',
+      kadShare: 'Kongsi Kad',
+      kadForYou: 'Ada kad Raya untuk',
+      kadTap: 'Ketuk untuk buka',
+      kadMakeYours: 'Buat Kad Anda',
+      kadClose: 'Tutup',
+      kadFillName: 'Sila isi nama anda dan penerima',
+      kadTpl1: 'Selamat Hari Raya Aidilfitri, maaf zahir & batin. Semoga Syawal ini penuh keberkatan.',
+      kadTpl2: 'Salam Aidilfitri! Maaf kalau ada salah silap ye. Jemput datang beraya!',
+      kadTpl3: 'Selamat Hari Raya! Ampun maaf segala salah silap. Jangan lupa jemput makan!',
+      or: 'atau',
     },
     en: {
       subtitle: 'Quickly check if you can shake hands with someone',
@@ -117,6 +135,24 @@
       tree_inlaws_child: 'Children-in-Law',
       tree_step: 'Step Family',
       tree_milk: 'Milk Relations',
+      kadBtn: 'Create Digital Raya Card',
+      kadTitle: 'Create Raya Card',
+      kadSubtitle: 'Create a unique digital card for your loved ones',
+      kadFrom: 'Your name',
+      kadTo: 'Recipient name',
+      kadMsg: 'Message',
+      kadTheme: 'Color theme',
+      kadPreview: 'Preview',
+      kadShare: 'Share Card',
+      kadForYou: 'There is a Raya card for',
+      kadTap: 'Tap to open',
+      kadMakeYours: 'Make Your Own Card',
+      kadClose: 'Close',
+      kadFillName: 'Please fill in your name and the recipient',
+      kadTpl1: 'Wishing you a blessed Eid al-Fitr. May this Syawal bring happiness and blessings.',
+      kadTpl2: 'Happy Hari Raya! Sorry for any wrongdoings. Come visit us!',
+      kadTpl3: 'Happy Raya! Forgive me for everything. Come over for a meal!',
+      or: 'or',
     },
   };
 
@@ -576,6 +612,672 @@
   }
 
   // ========================================
+  // Kad Raya Digital
+  // ========================================
+  const kadThemes = [
+    { bg: '#166534', accent: '#c8a45c' },
+    { bg: '#7c2d12', accent: '#f59e0b' },
+    { bg: '#1e3a5f', accent: '#93c5fd' },
+    { bg: '#581c87', accent: '#d8b4fe' },
+  ];
+
+  function encodeKad(data) {
+    try {
+      const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    } catch { return ''; }
+  }
+
+  function decodeKad(str) {
+    try {
+      str = str.replace(/-/g, '+').replace(/_/g, '/');
+      while (str.length % 4) str += '=';
+      return JSON.parse(decodeURIComponent(escape(atob(str))));
+    } catch { return null; }
+  }
+
+  function checkKadUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const k = params.get('kad');
+    if (k) {
+      const data = decodeKad(k);
+      if (data && data.f && data.t) {
+        showKadView(data);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Card style management
+  let kadStyle = 'classic'; // 'classic' or 'code'
+  let kadLang = 'js';
+
+  function setKadStyle(style) {
+    kadStyle = style;
+    document.querySelectorAll('.kad-style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === style));
+    document.getElementById('kadClassicOptions').style.display = style === 'classic' ? '' : 'none';
+    document.getElementById('kadCodeOptions').style.display = style === 'code' ? '' : 'none';
+  }
+
+  function setKadLang(btn) {
+    kadLang = btn.dataset.lang;
+    document.querySelectorAll('.kad-lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function pickKadTheme(btn) {
+    document.querySelectorAll('.kad-theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function useKadTemplate(idx) {
+    const key = 'kadTpl' + (idx + 1);
+    document.getElementById('kadMsg').value = t(key);
+  }
+
+  function getKadData() {
+    const from = document.getElementById('kadFrom').value.trim();
+    const to = document.getElementById('kadTo').value.trim();
+    if (!from || !to) { showToast(t('kadFillName')); return null; }
+    const msg = document.getElementById('kadMsg').value.trim() || t('kadTpl1');
+    if (kadStyle === 'code') {
+      return { f: from, t: to, m: msg, s: 'code', l: kadLang };
+    }
+    const theme = parseInt(document.querySelector('.kad-theme-btn.active')?.dataset.theme || '0');
+    return { f: from, t: to, m: msg, c: theme };
+  }
+
+  function previewKad() {
+    const data = getKadData();
+    if (!data) return;
+    showKadView(data, true);
+  }
+
+  async function shareKad() {
+    const data = getKadData();
+    if (!data) return;
+
+    const encoded = encodeKad(data);
+    const url = `${window.location.origin}${window.location.pathname}?kad=${encoded}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Kad Raya', text: `${data.t}, ada Kad Raya untuk anda!`, url });
+      } catch { /* cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast(t('copied'));
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(t('copied'));
+      }
+    }
+  }
+
+  // HTML escaping for code templates
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getCodeLines(lang, from, to, msg) {
+    const f = esc(from), t2 = esc(to), m = esc(msg);
+    const templates = {
+      js: [
+        `<span class="ck">const</span> <span class="cv">rayaGreeting</span> = {`,
+        `  <span class="cv">to</span>: <span class="cs">"${t2}"</span>,`,
+        `  <span class="cv">from</span>: <span class="cs">"${f}"</span>,`,
+        `  <span class="cv">message</span>: <span class="cs">"${m}"</span>,`,
+        `};`,
+        ``,
+        `<span class="cf">console</span>.<span class="cf">log</span>(<span class="cs">"Selamat Hari Raya, "</span> + rayaGreeting.<span class="cv">to</span>);`,
+        `<span class="cf">console</span>.<span class="cf">log</span>(rayaGreeting.<span class="cv">message</span>);`,
+        `<span class="cc">// — ${f}</span>`,
+      ],
+      py: [
+        `<span class="ck">def</span> <span class="cf">selamat_raya</span>(nama, mesej):`,
+        `    <span class="cf">print</span>(<span class="cs">f"Selamat Hari Raya, </span><span class="cv">{nama}</span><span class="cs">!"</span>)`,
+        `    <span class="cf">print</span>(mesej)`,
+        ``,
+        `<span class="cf">selamat_raya</span>(<span class="cs">"${t2}"</span>, <span class="cs">"${m}"</span>)`,
+        `<span class="cc"># — ${f}</span>`,
+      ],
+      git: [
+        `<span class="cf">$</span> <span class="ck">cd</span> ~/raya-2026`,
+        `<span class="cf">$</span> <span class="ck">git add</span> maaf-zahir-batin`,
+        `<span class="cf">$</span> <span class="ck">git commit</span> <span class="cv">-m</span> <span class="cs">"Selamat Hari Raya, ${t2}!"</span>`,
+        `<span class="cf">$</span> <span class="ck">git push</span> origin maaf <span class="cv">--force-with-love</span>`,
+        ``,
+        `<span class="cv">remote:</span> <span class="cs">${m}</span>`,
+        `<span class="cv">remote:</span> Delivered successfully!`,
+        `<span class="cc"># — ${f}</span>`,
+      ],
+      sql: [
+        `<span class="ck">SELECT</span> <span class="cs">'Selamat Hari Raya'</span> <span class="ck">AS</span> <span class="cv">greeting</span>,`,
+        `       <span class="cs">'${t2}'</span> <span class="ck">AS</span> <span class="cv">penerima</span>,`,
+        `       <span class="cs">'${m}'</span>`,
+        `       <span class="ck">AS</span> <span class="cv">mesej</span>`,
+        `<span class="ck">FROM</span>   <span class="cv">hati</span>`,
+        `<span class="ck">WHERE</span>  <span class="cv">ikhlas</span> = <span class="cn">TRUE</span>`,
+        `<span class="ck">AND</span>    <span class="cv">tahun</span> = <span class="cn">2026</span>;`,
+        `<span class="cc">-- — ${f}</span>`,
+      ],
+      html: [
+        `<span class="ct">&lt;html&gt;</span>`,
+        `  <span class="ct">&lt;head&gt;</span>`,
+        `    <span class="ct">&lt;title&gt;</span><span class="cs">Selamat Hari Raya</span><span class="ct">&lt;/title&gt;</span>`,
+        `  <span class="ct">&lt;/head&gt;</span>`,
+        `  <span class="ct">&lt;body&gt;</span>`,
+        `    <span class="ct">&lt;h1&gt;</span>Selamat Hari Raya, <span class="cv">${t2}</span>!<span class="ct">&lt;/h1&gt;</span>`,
+        `    <span class="ct">&lt;p&gt;</span><span class="cs">${m}</span><span class="ct">&lt;/p&gt;</span>`,
+        `    <span class="ct">&lt;footer&gt;</span><span class="cc">&mdash; ${f}</span><span class="ct">&lt;/footer&gt;</span>`,
+        `  <span class="ct">&lt;/body&gt;</span>`,
+        `<span class="ct">&lt;/html&gt;</span>`,
+      ],
+    };
+    return templates[lang] || templates.js;
+  }
+
+  function showKadView(data, isPreview = false) {
+    const view = document.getElementById('kadView');
+    const isCode = data.s === 'code';
+
+    view.classList.toggle('code-mode', isCode);
+
+    if (isCode) {
+      view.style.setProperty('--kad-bg', '#1e1e2e');
+      view.style.setProperty('--kad-accent', '#89b4fa');
+
+      document.getElementById('kadViewTo').textContent = data.t;
+
+      // Build code editor content
+      const lines = getCodeLines(data.l || 'js', data.f, data.t, data.m);
+      const langLabel = { js: 'JavaScript', py: 'Python', git: 'Git', sql: 'SQL', html: 'HTML' }[data.l || 'js'];
+      const codeEl = document.getElementById('kadCodeEditor');
+      codeEl.innerHTML = `<div class="code-tab"><span class="code-tab-dots"><span class="code-tab-dot"></span><span class="code-tab-dot"></span><span class="code-tab-dot"></span></span><span class="code-tab-name">${langLabel}</span></div><div class="code-body">` +
+        lines.map((line, i) =>
+          `<div class="code-line" style="--line-delay:${0.5 + i * 0.12}s"><span class="code-num">${i + 1}</span><span class="code-text">${line || '&nbsp;'}</span></div>`
+        ).join('') + `</div>`;
+    } else {
+      const theme = kadThemes[data.c] || kadThemes[0];
+      view.style.setProperty('--kad-bg', theme.bg);
+      view.style.setProperty('--kad-accent', theme.accent);
+
+      document.getElementById('kadViewTo').textContent = data.t;
+      document.getElementById('kadViewMsg').textContent = data.m;
+      document.getElementById('kadViewFrom').textContent = data.f;
+    }
+
+    const ctaBtn = document.getElementById('kadCtaBtn');
+    if (ctaBtn) ctaBtn.style.display = isPreview ? 'none' : '';
+
+    // CTA text
+    const ctaText = document.getElementById('kadCtaText');
+    if (ctaText) ctaText.textContent = isCode ? (currentLang === 'ms' ? 'Fork Kad Ini' : 'Fork This Card') : t('kadMakeYours');
+
+    view.classList.add('active');
+    view.classList.remove('opened');
+    document.body.style.overflow = 'hidden';
+    createAmbientParticles();
+  }
+
+  function openKadAnimation() {
+    const view = document.getElementById('kadView');
+    if (view.classList.contains('opened')) return;
+
+    // Haptic feedback
+    if (navigator.vibrate) navigator.vibrate(50);
+
+    view.classList.add('opened');
+
+    // Start infinite canvas particle system
+    startKadCanvas(view.classList.contains('code-mode'));
+
+    if (view.classList.contains('code-mode')) {
+      typedRevealCode();
+    } else {
+      createKadSparkles();
+      typedRevealClassic();
+    }
+  }
+
+  function closeKadView() {
+    const view = document.getElementById('kadView');
+    view.classList.remove('active', 'opened', 'code-mode');
+    document.body.style.overflow = '';
+    document.getElementById('kadSparkles').innerHTML = '';
+
+    // Clean up typed reveal classes
+    const msgEl = document.getElementById('kadViewMsg');
+    if (msgEl) msgEl.classList.remove('typed');
+    const fromEl = document.querySelector('.kad-opened-from');
+    if (fromEl) fromEl.classList.remove('typed-pending', 'typed-show');
+    const actionsEl = document.querySelector('.kad-opened-actions');
+    if (actionsEl) actionsEl.classList.remove('typed-pending', 'typed-show');
+
+    // Clean up canvas, ambient particles, celebration, code success
+    if (kadCanvasCleanup) kadCanvasCleanup();
+    const amb = document.getElementById('kadAmbient');
+    if (amb) amb.remove();
+    const cel = document.querySelector('.celebration');
+    if (cel) cel.remove();
+    const suc = document.querySelector('.code-success');
+    if (suc) suc.remove();
+
+    if (window.location.search.includes('kad=')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }
+
+  function kadGoToCreate() {
+    closeKadView();
+    goToStep('kad-create');
+  }
+
+  function createKadSparkles() {
+    const container = document.getElementById('kadSparkles');
+    container.innerHTML = '';
+    const colors = ['var(--kad-accent)', '#fff', '#fff8e1'];
+    for (let i = 0; i < 40; i++) {
+      const s = document.createElement('div');
+      s.className = 'kad-sparkle';
+      const angle = (Math.PI * 2 * i) / 40;
+      const dist = 80 + Math.random() * 180;
+      s.style.setProperty('--x', `${Math.cos(angle) * dist}px`);
+      s.style.setProperty('--y', `${Math.sin(angle) * dist}px`);
+      s.style.setProperty('--r', `${Math.random() * 720}deg`);
+      s.style.setProperty('--delay', `${Math.random() * 0.3}s`);
+      s.style.setProperty('--size', `${4 + Math.random() * 8}px`);
+      s.style.background = colors[Math.floor(Math.random() * colors.length)];
+      container.appendChild(s);
+    }
+  }
+
+  // ========================================
+  // Canvas Particle System (infinite + interactive)
+  // ========================================
+  let kadCanvasCleanup = null;
+
+  function startKadCanvas(isCode) {
+    if (kadCanvasCleanup) kadCanvasCleanup();
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'kadCanvas';
+    const view = document.getElementById('kadView');
+    view.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    resize();
+
+    const colors = isCode
+      ? ['#89b4fa','#a6e3a1','#cba6f7','#f9e2af','#89dceb']
+      : ['#c8a45c','#b8942c','#22c55e','#16a34a','#d4b876'];
+
+    // Tuning: subtle on light bg, vivid on dark bg
+    const cfg = isCode
+      ? { count: 80, minSize: 1, maxSize: 3, blur: 8, minAlpha: 0.2, maxAlpha: 0.5, clear: 0.1, sparkBlur: 10 }
+      : { count: 45, minSize: 0.8, maxSize: 1.8, blur: 3, minAlpha: 0.12, maxAlpha: 0.3, clear: 0.2, sparkBlur: 4 };
+
+    // Particles
+    const particles = [];
+    for (let i = 0; i < cfg.count; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize),
+        speed: 0.15 + Math.random() * 0.5,
+        phase: Math.random() * Math.PI * 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        opacity: cfg.minAlpha + Math.random() * (cfg.maxAlpha - cfg.minAlpha),
+        sway: 0.3 + Math.random() * 0.5,
+      });
+    }
+
+    let sparks = [];
+    let bursts = [];
+    let animId;
+    let running = true;
+
+    function animate() {
+      if (!running) return;
+      animId = requestAnimationFrame(animate);
+
+      // Semi-transparent clear → glow trails
+      const bg = isCode ? '30,30,46' : '254,253,248';
+      ctx.fillStyle = 'rgba(' + bg + ',' + cfg.clear + ')';
+      ctx.fillRect(0, 0, w, h);
+
+      const now = Date.now();
+
+      // Floating particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.y -= p.speed;
+        p.x += Math.sin(p.y * 0.007 + p.phase) * p.sway;
+
+        // Burst pushback
+        for (let j = 0; j < bursts.length; j++) {
+          const b = bursts[j];
+          const dx = p.x - b.x, dy = p.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const age = (now - b.t) / 1000;
+          if (dist < 160 && age < 0.6) {
+            const force = (1 - age / 0.6) * 5 / Math.max(dist, 8);
+            p.x += dx * force;
+            p.y += dy * force;
+          }
+        }
+
+        if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+        if (p.x < -20) p.x = w + 10;
+        if (p.x > w + 20) p.x = -10;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.shadowBlur = cfg.blur;
+        ctx.shadowColor = p.color;
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.opacity;
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+
+      // Sparkle trail particles
+      let si = sparks.length;
+      while (si--) {
+        const s = sparks[si];
+        s.life -= 0.018;
+        if (s.life <= 0) { sparks.splice(si, 1); continue; }
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vy += 0.08;
+        s.vx *= 0.97;
+        const a = s.life / s.ml;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size * a, 0, Math.PI * 2);
+        ctx.shadowBlur = cfg.sparkBlur;
+        ctx.shadowColor = s.color;
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = a * 0.9;
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+
+      // Clean old bursts
+      bursts = bursts.filter(b => now - b.t < 700);
+    }
+
+    function onTap(x, y) {
+      bursts.push({ x, y, t: Date.now() });
+      const sparkCount = isCode ? 18 : 12;
+      for (let i = 0; i < sparkCount; i++) {
+        const angle = (Math.PI * 2 * i) / sparkCount + (Math.random() - 0.5) * 0.4;
+        const speed = 2 + Math.random() * (isCode ? 5 : 3);
+        const life = 0.5 + Math.random() * 0.5;
+        sparks.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life, ml: life,
+          size: isCode ? (2 + Math.random() * 3) : (1 + Math.random() * 1.5),
+          color: colors[Math.floor(Math.random() * colors.length)],
+        });
+      }
+      if (navigator.vibrate) navigator.vibrate(12);
+    }
+
+    function onDrag(x, y) {
+      const n = isCode ? 3 : 2;
+      for (let i = 0; i < n; i++) {
+        const life = 0.3 + Math.random() * 0.3;
+        sparks.push({
+          x: x + (Math.random() - 0.5) * 14,
+          y: y + (Math.random() - 0.5) * 14,
+          vx: (Math.random() - 0.5) * 2,
+          vy: -1.5 - Math.random() * 2,
+          life, ml: life,
+          size: isCode ? (1.5 + Math.random() * 2.5) : (0.8 + Math.random() * 1.2),
+          color: colors[Math.floor(Math.random() * colors.length)],
+        });
+      }
+    }
+
+    function hClick(e) { onTap(e.clientX, e.clientY); }
+    function hTouchS(e) { const t = e.touches[0]; if (t) onTap(t.clientX, t.clientY); }
+    function hTouchM(e) { const t = e.touches[0]; if (t) onDrag(t.clientX, t.clientY); }
+    function hMouseM(e) { if (e.buttons > 0) onDrag(e.clientX, e.clientY); }
+
+    view.addEventListener('click', hClick);
+    view.addEventListener('touchstart', hTouchS, { passive: true });
+    view.addEventListener('touchmove', hTouchM, { passive: true });
+    view.addEventListener('mousemove', hMouseM);
+    window.addEventListener('resize', resize);
+
+    animate();
+
+    kadCanvasCleanup = function() {
+      running = false;
+      cancelAnimationFrame(animId);
+      view.removeEventListener('click', hClick);
+      view.removeEventListener('touchstart', hTouchS);
+      view.removeEventListener('touchmove', hTouchM);
+      view.removeEventListener('mousemove', hMouseM);
+      window.removeEventListener('resize', resize);
+      canvas.remove();
+      kadCanvasCleanup = null;
+    };
+  }
+
+  // ========================================
+  // Ambient Particles (sealed background)
+  // ========================================
+  function createAmbientParticles() {
+    const old = document.getElementById('kadAmbient');
+    if (old) old.remove();
+    const c = document.createElement('div');
+    c.className = 'kad-ambient';
+    c.id = 'kadAmbient';
+    for (let i = 0; i < 25; i++) {
+      const p = document.createElement('div');
+      p.className = 'kad-ambient-particle';
+      p.style.setProperty('--x', Math.random() * 100 + '%');
+      p.style.setProperty('--delay', Math.random() * 5 + 's');
+      p.style.setProperty('--dur', 4 + Math.random() * 6 + 's');
+      p.style.setProperty('--size', 2 + Math.random() * 4 + 'px');
+      c.appendChild(p);
+    }
+    document.querySelector('.kad-sealed').appendChild(c);
+  }
+
+  // ========================================
+  // Typed Message Reveal (classic mode)
+  // ========================================
+  function typedRevealClassic() {
+    const msgEl = document.getElementById('kadViewMsg');
+    const fromEl = document.querySelector('.kad-opened-from');
+    const actionsEl = document.querySelector('.kad-opened-actions');
+    const fullText = msgEl.textContent;
+
+    msgEl.classList.add('typed');
+    msgEl.textContent = '';
+    fromEl.classList.add('typed-pending');
+    actionsEl.classList.add('typed-pending');
+
+    // Wait for greeting + divider CSS transitions (~1.2s)
+    setTimeout(() => {
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'typing-cursor';
+      msgEl.appendChild(cursor);
+
+      function typeChar() {
+        if (i < fullText.length) {
+          cursor.before(document.createTextNode(fullText[i]));
+          i++;
+          const ch = fullText[i - 1];
+          const delay = (ch === '.' || ch === '!' || ch === '?') ? 140
+                      : (ch === ',') ? 90
+                      : (ch === ' ') ? 50
+                      : 30;
+          setTimeout(typeChar, delay);
+        } else {
+          setTimeout(() => {
+            cursor.remove();
+            fromEl.classList.remove('typed-pending');
+            fromEl.classList.add('typed-show');
+            setTimeout(() => {
+              actionsEl.classList.remove('typed-pending');
+              actionsEl.classList.add('typed-show');
+              createCelebration(false);
+              if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+            }, 700);
+          }, 400);
+        }
+      }
+      typeChar();
+    }, 1200);
+  }
+
+  // ========================================
+  // Code Reveal with Cursor (coder mode)
+  // ========================================
+  function typedRevealCode() {
+    const codeBody = document.querySelector('.code-body');
+    const lines = codeBody ? codeBody.querySelectorAll('.code-line') : [];
+    const actionsEl = document.querySelector('.kad-opened-actions');
+    actionsEl.classList.add('typed-pending');
+
+    const totalDelay = lines.length > 0 ? (0.5 + lines.length * 0.12 + 0.4) : 1.5;
+
+    setTimeout(() => {
+      // Add blinking cursor on last line
+      const lastLine = lines[lines.length - 1];
+      const cursorEl = document.createElement('span');
+      cursorEl.className = 'code-cursor';
+      if (lastLine) lastLine.querySelector('.code-text').appendChild(cursorEl);
+
+      // After cursor blinks, show success + celebrate
+      setTimeout(() => {
+        cursorEl.remove();
+        const success = document.createElement('div');
+        success.className = 'code-success';
+        success.textContent = '✓ Build successful — Selamat Hari Raya!';
+        const editor = document.getElementById('kadCodeEditor');
+        if (editor) editor.appendChild(success);
+
+        actionsEl.classList.remove('typed-pending');
+        actionsEl.classList.add('typed-show');
+        createCelebration(true);
+        if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+      }, 1200);
+    }, totalDelay * 1000);
+  }
+
+  // ========================================
+  // Firework Celebration
+  // ========================================
+  function createCelebration(isCode) {
+    const old = document.querySelector('.celebration');
+    if (old) old.remove();
+    const container = document.createElement('div');
+    container.className = 'celebration';
+    document.getElementById('kadView').appendChild(container);
+
+    const palettes = isCode
+      ? [['#89b4fa','#89dceb','#b4befe'],['#a6e3a1','#94e2d5','#f9e2af'],['#cba6f7','#f38ba8','#fab387']]
+      : [['#c8a45c','#d4b876','#f0e4bc'],['#22c55e','#16a34a','#dcfce7'],['#fff','#faf3e0','#e0cc90']];
+
+    // 5 firework bursts at staggered positions
+    const bursts = [
+      { x: 25, y: 22, delay: 0 },
+      { x: 72, y: 18, delay: 0.6 },
+      { x: 50, y: 12, delay: 1.1 },
+      { x: 18, y: 28, delay: 1.7 },
+      { x: 78, y: 24, delay: 2.2 },
+    ];
+
+    bursts.forEach((b, idx) => {
+      const palette = palettes[idx % palettes.length];
+
+      // Rocket trail
+      const rocket = document.createElement('div');
+      rocket.className = 'fw-rocket';
+      rocket.style.setProperty('--left', b.x + '%');
+      rocket.style.setProperty('--delay', b.delay + 's');
+      rocket.style.setProperty('--rise', (100 - b.y) + '%');
+      rocket.style.setProperty('--color', palette[0]);
+      container.appendChild(rocket);
+
+      // Burst container
+      const burst = document.createElement('div');
+      burst.className = 'fw-burst';
+      burst.style.setProperty('--left', b.x + '%');
+      burst.style.setProperty('--top', b.y + '%');
+
+      // Glow flash
+      const flash = document.createElement('div');
+      flash.className = 'fw-flash';
+      flash.style.setProperty('--flash-delay', (b.delay + 0.45) + 's');
+      flash.style.setProperty('--color', palette[0]);
+      burst.appendChild(flash);
+
+      // Explosion particles
+      const particleCount = 30 + Math.floor(Math.random() * 10);
+      for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'fw-particle';
+        const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.3;
+        const dist = 40 + Math.random() * 90;
+        p.style.setProperty('--x', (Math.cos(angle) * dist) + 'px');
+        p.style.setProperty('--y', (Math.sin(angle) * dist) + 'px');
+        p.style.setProperty('--gravity', (50 + Math.random() * 60) + 'px');
+        p.style.setProperty('--color', palette[Math.floor(Math.random() * palette.length)]);
+        p.style.setProperty('--size', (2 + Math.random() * 4) + 'px');
+        p.style.setProperty('--dur', (0.7 + Math.random() * 0.5) + 's');
+        p.style.setProperty('--p-delay', (b.delay + 0.45 + Math.random() * 0.08) + 's');
+        burst.appendChild(p);
+      }
+
+      container.appendChild(burst);
+    });
+
+    // Sparkle rain after fireworks settle
+    setTimeout(() => {
+      const sparkleColors = isCode
+        ? ['#89b4fa','#a6e3a1','#cba6f7','#f9e2af']
+        : ['#c8a45c','#d4b876','#f0e4bc','#fff'];
+      for (let i = 0; i < 50; i++) {
+        const s = document.createElement('div');
+        s.className = 'sparkle-rain';
+        s.style.setProperty('--left', Math.random() * 100 + '%');
+        s.style.setProperty('--color', sparkleColors[Math.floor(Math.random() * sparkleColors.length)]);
+        s.style.setProperty('--s-delay', Math.random() * 2 + 's');
+        s.style.setProperty('--size', (2 + Math.random() * 3) + 'px');
+        s.style.setProperty('--fall-dur', (3 + Math.random() * 3) + 's');
+        s.style.setProperty('--drift', (Math.random() * 40 - 20) + 'px');
+        container.appendChild(s);
+      }
+    }, 2500);
+
+    setTimeout(() => container.remove(), 9000);
+  }
+
+  // ========================================
   // Share
   // ========================================
   async function shareApp() {
@@ -639,6 +1341,7 @@
   // ========================================
   function init() {
     updateAllTexts();
+    checkKadUrl();
   }
 
   // ========================================
@@ -663,4 +1366,13 @@
   window.setTreeGender = setTreeGender;
   window.toggleSameGender = toggleSameGender;
   window.hideTreeDetail = hideTreeDetail;
+  window.setKadStyle = setKadStyle;
+  window.setKadLang = setKadLang;
+  window.pickKadTheme = pickKadTheme;
+  window.useKadTemplate = useKadTemplate;
+  window.previewKad = previewKad;
+  window.shareKad = shareKad;
+  window.openKadAnimation = openKadAnimation;
+  window.closeKadView = closeKadView;
+  window.kadGoToCreate = kadGoToCreate;
 })();
